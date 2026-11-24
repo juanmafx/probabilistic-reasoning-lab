@@ -1,0 +1,14 @@
+# Local environments, caches, build output and local databases.
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.hypothesis/
+.mypy_cache/
+.ruff_cache/
+build/
+dist/
+*.egg-info/
+*.sqlite3
+.env
+.env.*

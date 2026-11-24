@@ -1,0 +1,43 @@
+# Project metadata and tool configuration.
+[build-system]
+requires = ["hatchling==1.33.0"]
+build-backend = "hatchling.build"
+
+[project]
+name = "probabilistic-arguments"
+version = "1.0.0"
+description = "Exact and experimental evaluation of logical arguments about probabilities."
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = []
+
+[project.scripts]
+probabilistic-arguments = "probabilistic_arguments.cli.main:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/probabilistic_arguments"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+addopts = "-ra --strict-markers --import-mode=importlib"
+
+[tool.ruff]
+line-length = 100
+target-version = "py313"
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP", "S", "C4", "SIM", "RUF"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["S101", "S311", "S608"]
+"tools/generate_test_report.py" = ["S314", "S603"]
+"src/probabilistic_arguments/logic/parser.py" = ["S105"]
+"src/probabilistic_arguments/inference/network.py" = ["S311"]
+"src/probabilistic_arguments/simulation/monte_carlo.py" = ["S311"]
+
+[tool.mypy]
+strict = true
+files = ["src", "tools"]
+mypy_path = "src"
