@@ -2,7 +2,15 @@
 
 This project follows [Semantic Versioning](https://semver.org/).
 
-## [1.0.0] - Unreleased
+## [1.0.1] - 2026-11-24
+
+Documentation corrections only. No change to code behaviour.
+
+### Changed
+
+- Release notes and changelog now reflect that 1.0.0 is published and that the public Git history was rewritten on 2026-11-24 to keep only the 2026 modernization.
+
+## [1.0.0] - 2026-11-24
 
 The first implementation, added in 2026. The repository previously contained only a description.
 

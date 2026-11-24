@@ -5,7 +5,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "probabilistic-arguments"
-version = "1.0.0"
+version = "1.0.1"
 description = "Exact and experimental evaluation of logical arguments about probabilities."
 readme = "README.md"
 requires-python = ">=3.13"
