@@ -31,7 +31,7 @@ This toolkit answers the first two with exact rational arithmetic and the third 
 | Experimental verification | Seeded rejection sampling with Wilson score intervals |
 | Optional run history | Parameterized SQLite storage |
 
-The catalog contains seven argument forms, including two fallacies, and four scenarios: base-rate neglect, repeated testing, diagnostic reasoning and explaining away. Scenario parameters are teaching values, not real-world data.
+The catalog contains seven argument forms, including two fallacies, and four scenarios: base-rate neglect, repeated testing, diagnostic reasoning and explaining away. The scenarios follow standard textbook patterns, and their parameters are teaching values, not real-world data.
 
 ## Architecture
 
@@ -121,7 +121,7 @@ There are no configuration files or environment variables. Behavior is set throu
 | --- | --- | --- | --- |
 | `--samples` | `simulate` | `100000` | 1 to 10,000,000 |
 | `--seed` | `simulate` | `2026` | 0 to 2^63 - 1 |
-| `--confidence` | `simulate` | `0.95` | Between 0 and 1 |
+| `--confidence` | `simulate` | `0.95` | Between 0 and 1, excluding values too close to either end to compute an interval |
 | `--database` | `simulate` | None | Path to an existing database |
 
 ## Optional database
@@ -132,6 +132,8 @@ There are no configuration files or environment variables. Behavior is set throu
 sqlite3 runs.sqlite3 < db/schema.sql
 probabilistic-arguments simulate base_rate --database runs.sqlite3
 ```
+
+The schema uses `STRICT` tables, which require SQLite 3.37 or newer. All runs from one `simulate` command are stored in a single transaction, so a failed command stores none of them.
 
 ## Testing
 
@@ -148,7 +150,7 @@ The suite contains unit, property-based, statistical and integration tests. Hypo
 ## Security notes
 
 - Formulas are parsed by a grammar and are never evaluated as code.
-- Formula length, nesting, variable count, network size and sample count are bounded.
+- Formula length, nesting, variable count, premise count, network size and sample count are bounded.
 - SQL statements are parameterized, and the CLI never creates a database or runs schema files.
 - The project makes no network requests and stores no credentials.
 
@@ -156,7 +158,7 @@ See [SECURITY.md](SECURITY.md) and [docs/SECURITY_AUDIT.md](docs/SECURITY_AUDIT.
 
 ## Limitations
 
-- Exact analysis is limited to 10 variables because the model has one column per truth assignment.
+- Exact analysis is limited to 10 variables and 12 premises because the model has one column per truth assignment and one or two rows per premise. An analysis near those limits can take many seconds.
 - `P(F given G) = p` is encoded linearly as `P(F and G) = p * P(G)`, so it holds vacuously when `P(G) = 0`.
 - Conclusions are unconditional formulas.
 - Seeded results are reproducible for a given Python version; the standard library does not guarantee identical random streams across all future versions.

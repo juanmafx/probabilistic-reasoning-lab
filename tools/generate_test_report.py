@@ -68,6 +68,8 @@ def write_summary(suite: ElementTree.Element, exit_code: int) -> None:
 
 def main() -> int:
     REPORT_DIRECTORY.mkdir(parents=True, exist_ok=True)
+    JUNIT_PATH.unlink(missing_ok=True)
+    SUMMARY_PATH.unlink(missing_ok=True)
     exit_code = run_tests()
     if not JUNIT_PATH.exists():
         return exit_code or 1

@@ -30,7 +30,7 @@ cli
 | `inference/network.py` | Exact inference and sampling | `BayesianNetwork`, `Node` |
 | `simulation/monte_carlo.py` | Experiments | `estimate_probability`, `wilson_interval` |
 | `catalog/` | Built-in content | `ARGUMENT_FORMS`, `SCENARIOS` |
-| `persistence/run_store.py` | Optional storage | `save_run` |
+| `persistence/run_store.py` | Optional transactional storage | `RunRecord`, `save_runs` |
 | `cli/main.py` | JSON interface | `main` |
 
 ## Algorithms
@@ -85,7 +85,7 @@ Results use the Wilson score interval, which behaves better than the normal appr
 | Monte Carlo with `S` samples | `O(S * n)` | `O(n)` |
 | Wilson interval | `O(1)` | `O(1)` |
 
-Here `s` is the number of slack columns. Rational operation cost also grows with the bit length of the values involved. These costs are the reason for the limits of 10 argument variables and 16 network nodes.
+Here `s` is the number of slack columns. Rational operation cost also grows with the bit length of the values involved. These costs are the reason for the limits of 10 argument variables, 12 premises and 16 network nodes. The limits bound the model size, not the running time: an analysis near them can still take many seconds.
 
 ## Reproducibility
 

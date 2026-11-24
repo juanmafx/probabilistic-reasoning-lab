@@ -22,7 +22,24 @@ def test_parses_exact_values(text, expected):
 
 
 @pytest.mark.parametrize(
-    "value", ["1.5", "-0.1", "nan", "inf", "1e999999", "2/1", "1/0", "abc", "", True, 0.5, 2]
+    "value",
+    [
+        "1.5",
+        "-0.1",
+        "nan",
+        "inf",
+        "1e999999",
+        "2/1",
+        "1/0",
+        "abc",
+        "",
+        True,
+        0.5,
+        2,
+        "0.\u0665",
+        "\u0663/\u0664",
+        "\u0663/4",
+    ],
 )
 def test_rejects_invalid_values(value):
     with pytest.raises(InvalidProbabilityError):

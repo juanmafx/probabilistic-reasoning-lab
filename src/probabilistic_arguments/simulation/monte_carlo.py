@@ -25,12 +25,19 @@ class Estimate:
     confidence: float
 
 
+def _critical_value(confidence: float) -> float:
+    if not 0 < confidence < 1:
+        raise ModelError("confidence must lie in (0, 1)")
+    quantile = (1 + confidence) / 2
+    if not 0.5 < quantile < 1:
+        raise ModelError("confidence is too close to 0 or 1 to compute an interval")
+    return NormalDist().inv_cdf(quantile)
+
+
 def wilson_interval(successes: int, trials: int, confidence: float) -> tuple[float, float]:
     if trials <= 0 or not 0 <= successes <= trials:
         raise ModelError("interval requires 0 <= successes <= trials and trials > 0")
-    if not 0 < confidence < 1:
-        raise ModelError("confidence must lie in (0, 1)")
-    z = NormalDist().inv_cdf((1 + confidence) / 2)
+    z = _critical_value(confidence)
     z_squared = z * z
     proportion = successes / trials
     denominator = 1 + z_squared / trials
@@ -52,6 +59,7 @@ def estimate_probability(
 ) -> Estimate:
     if not 0 < samples <= MAX_SAMPLES:
         raise ModelError(f"samples must lie in [1, {MAX_SAMPLES}]")
+    _critical_value(confidence)
     network.probability(query, evidence)
     generator = Random(seed)
     accepted = 0

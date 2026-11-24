@@ -8,7 +8,9 @@ import pytest
 
 from probabilistic_arguments.catalog.arguments import ARGUMENT_FORMS
 from probabilistic_arguments.catalog.scenarios import SCENARIOS
+from probabilistic_arguments.cli import main as cli_module
 from probabilistic_arguments.cli.main import main
+from probabilistic_arguments.errors import ModelError
 
 SCHEMA = Path(__file__).resolve().parents[2] / "db" / "schema.sql"
 
@@ -113,3 +115,37 @@ def test_rejects_out_of_range_seed(capsys, seed):
 def test_renders_statements_without_redundant_parentheses(capsys):
     payload = run_json(capsys, "argument", "modus_ponens")
     assert payload["premises"] == ["P(A) = 9/10", "P(A -> B) = 4/5"]
+
+
+def test_unusable_confidence_exits_cleanly(capsys):
+    code = main(["simulate", "base_rate", "--samples", "10", "--confidence", "0.9999999999999999"])
+    assert code == 2
+    assert "confidence" in capsys.readouterr().err
+
+
+def test_failed_batch_stores_no_runs(capsys, database, monkeypatch):
+    real_estimate = cli_module.estimate_probability
+    calls = []
+
+    def fail_on_last_scenario(*arguments, **options):
+        calls.append(arguments)
+        if len(calls) == len(SCENARIOS):
+            raise ModelError("no sample satisfied the evidence; increase samples")
+        return real_estimate(*arguments, **options)
+
+    monkeypatch.setattr(cli_module, "estimate_probability", fail_on_last_scenario)
+    code = main(["simulate", "all", "--samples", "2000", "--database", str(database)])
+    assert code == 2
+    capsys.readouterr()
+    with closing(sqlite3.connect(database)) as connection:
+        assert connection.execute("SELECT COUNT(*) FROM simulation_runs").fetchone() == (0,)
+
+
+def test_simulate_all_stores_every_run(capsys, database):
+    payload = run_json(capsys, "simulate", "all", "--samples", "2000", "--database", str(database))
+    run_ids = [run["run_id"] for run in payload["runs"]]
+    assert len(set(run_ids)) == len(SCENARIOS)
+    with closing(sqlite3.connect(database)) as connection:
+        assert connection.execute("SELECT COUNT(*) FROM simulation_runs").fetchone() == (
+            len(SCENARIOS),
+        )

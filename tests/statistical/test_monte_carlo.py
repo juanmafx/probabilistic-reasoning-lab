@@ -113,3 +113,14 @@ def test_wilson_interval_rejects_invalid_confidence(confidence):
 def test_estimate_rejects_invalid_sample_counts(samples):
     with pytest.raises(ModelError):
         estimate_probability(COIN, HEADS, None, samples, 1)
+
+
+@pytest.mark.parametrize("confidence", [1 - 2**-53, 5e-324])
+def test_wilson_interval_rejects_unusable_confidence(confidence):
+    with pytest.raises(ModelError):
+        wilson_interval(1, 2, confidence)
+
+
+def test_estimate_rejects_unusable_confidence_before_sampling():
+    with pytest.raises(ModelError):
+        estimate_probability(COIN, HEADS, None, 10_000_000, 1, confidence=1 - 2**-53)

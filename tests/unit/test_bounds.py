@@ -5,7 +5,7 @@ import pytest
 
 from probabilistic_arguments.catalog.arguments import ARGUMENT_FORMS
 from probabilistic_arguments.errors import InconsistentPremisesError, ModelError
-from probabilistic_arguments.inference.bounds import analyze_argument
+from probabilistic_arguments.inference.bounds import MAX_PREMISES, analyze_argument
 from probabilistic_arguments.logic.parser import parse_formula
 from probabilistic_arguments.probability.statements import parse_statement
 
@@ -61,3 +61,14 @@ def test_rejects_too_many_variables():
     names = " & ".join(f"V{index}" for index in range(11))
     with pytest.raises(ModelError):
         analyze_argument([], parse_formula(names))
+
+
+def test_rejects_too_many_premises():
+    premises = [parse_statement("P(A) = 1/2")] * (MAX_PREMISES + 1)
+    with pytest.raises(ModelError):
+        analyze_argument(premises, parse_formula("A"))
+
+
+def test_accepts_premises_at_the_limit():
+    premises = [parse_statement("P(A) = 1/2")] * MAX_PREMISES
+    assert analyze_argument(premises, parse_formula("A")).lower == F(1, 2)

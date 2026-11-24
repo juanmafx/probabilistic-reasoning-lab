@@ -24,7 +24,7 @@ There is no earlier release, so no migration is needed.
 
 ## Known limitations
 
-- Exact argument analysis supports up to 10 variables.
+- Exact argument analysis supports up to 10 variables and 12 premises, and can take many seconds near those limits.
 - Conclusions must be unconditional formulas.
 - A conditional premise holds vacuously when its condition has probability zero.
 - No license has been selected yet.

@@ -6,8 +6,8 @@ from fractions import Fraction
 
 from probabilistic_arguments.errors import InvalidProbabilityError
 
-_DECIMAL = re.compile(r"(?:0(?:\.\d{1,12})?|1(?:\.0{1,12})?|\.\d{1,12})")
-_RATIO = re.compile(r"\d{1,12}/[1-9]\d{0,11}")
+_DECIMAL = re.compile(r"(?:0(?:\.\d{1,12})?|1(?:\.0{1,12})?|\.\d{1,12})", re.ASCII)
+_RATIO = re.compile(r"\d{1,12}/[1-9]\d{0,11}", re.ASCII)
 
 
 def parse_probability(value: str | int | Fraction) -> Fraction:

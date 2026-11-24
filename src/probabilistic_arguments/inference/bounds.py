@@ -16,6 +16,7 @@ from probabilistic_arguments.optimization.simplex import (
 from probabilistic_arguments.probability.statements import ProbabilityStatement
 
 MAX_VARIABLES = 10
+MAX_PREMISES = 12
 
 WeightedWorld = tuple[dict[str, bool], Fraction]
 
@@ -100,6 +101,8 @@ def _is_classically_valid(
 def analyze_argument(
     premises: Sequence[ProbabilityStatement], conclusion: Formula
 ) -> ArgumentAnalysis:
+    if len(premises) > MAX_PREMISES:
+        raise ModelError(f"argument uses more than {MAX_PREMISES} premises")
     names = sorted(conclusion.variables().union(*(p.variables() for p in premises)))
     if len(names) > MAX_VARIABLES:
         raise ModelError(f"argument uses more than {MAX_VARIABLES} variables")

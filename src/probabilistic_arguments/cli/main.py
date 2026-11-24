@@ -20,7 +20,7 @@ from probabilistic_arguments.inference.bounds import (
 )
 from probabilistic_arguments.logic.formula import Formula, render
 from probabilistic_arguments.logic.parser import parse_formula
-from probabilistic_arguments.persistence.run_store import save_run
+from probabilistic_arguments.persistence.run_store import RunRecord, save_runs
 from probabilistic_arguments.probability.statements import ProbabilityStatement, parse_statement
 from probabilistic_arguments.simulation.monte_carlo import MAX_SAMPLES, estimate_probability
 
@@ -70,7 +70,9 @@ def _run_argument(options: argparse.Namespace) -> dict[str, Any]:
     )
 
 
-def _simulate_scenario(scenario: Scenario, options: argparse.Namespace) -> dict[str, Any]:
+def _simulate_scenario(
+    scenario: Scenario, options: argparse.Namespace
+) -> tuple[dict[str, Any], RunRecord]:
     exact: Fraction = scenario.network.probability(scenario.query, scenario.evidence)
     estimate = estimate_probability(
         scenario.network,
@@ -95,14 +97,18 @@ def _simulate_scenario(scenario: Scenario, options: argparse.Namespace) -> dict[
         "hits": estimate.hits,
         "exact_within_interval": estimate.interval_low <= exact <= estimate.interval_high,
     }
-    if options.database is not None:
-        payload["run_id"] = save_run(options.database, scenario.key, __version__, estimate, exact)
-    return payload
+    return payload, RunRecord(scenario.key, estimate, exact)
 
 
 def _run_simulate(options: argparse.Namespace) -> dict[str, Any]:
     keys = list(SCENARIOS) if options.key == "all" else [options.key]
-    return {"runs": [_simulate_scenario(SCENARIOS[key], options) for key in keys]}
+    results = [_simulate_scenario(SCENARIOS[key], options) for key in keys]
+    if options.database is not None:
+        records = [record for _, record in results]
+        run_ids = save_runs(options.database, __version__, records)
+        for (payload, _), run_id in zip(results, run_ids, strict=True):
+            payload["run_id"] = run_id
+    return {"runs": [payload for payload, _ in results]}
 
 
 def _sample_count(text: str) -> int:
