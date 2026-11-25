@@ -1,4 +1,4 @@
-# programacionExperimental
+# probabilistic-reasoning-lab
 
 A Python toolkit for experimental programming on logical arguments about probabilities. It computes what uncertain premises actually imply about a conclusion, then checks probabilistic claims against seeded simulations.
 
